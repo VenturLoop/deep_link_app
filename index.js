@@ -84,6 +84,7 @@ app.get("/callback_linkedIn", async (req, res) => {
     return res.status(400).json({ error: "Authorization code is missing" });
   }
 
+  
   try {
     // Exchange authorization code for access token
     const tokenResponse = await axios.post(
