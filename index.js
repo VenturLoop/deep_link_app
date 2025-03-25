@@ -67,7 +67,7 @@ app.get("/callback", async (req, res) => {
     );
 
     // Redirect user back to the mobile app using deep linking
-    const deepLink = `venturloop://callback?token=${appToken}`;
+    const deepLink = `venturloop://callback/(auth)/(signup)?token=${appToken}`;
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
@@ -84,7 +84,6 @@ app.get("/callback_linkedIn", async (req, res) => {
     return res.status(400).json({ error: "Authorization code is missing" });
   }
 
-  
   try {
     // Exchange authorization code for access token
     const tokenResponse = await axios.post(
@@ -104,8 +103,8 @@ app.get("/callback_linkedIn", async (req, res) => {
     const { access_token } = tokenResponse.data;
     console.log("Access Token:", access_token);
 
-    // Fetch user profile information from LinkedIn
-    const userProfileResponse = await axios.get("https://api.linkedin.com/v2/me", {
+    // Fetch user profile using OpenID Connect
+    const userProfileResponse = await axios.get("https://api.linkedin.com/v2/userinfo", {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
@@ -118,24 +117,29 @@ app.get("/callback_linkedIn", async (req, res) => {
     );
 
     const user = userProfileResponse.data;
-    const email = userEmailResponse.data.elements[0]["handle~"].emailAddress;
+    const email = userEmailResponse.data?.elements?.[0]?.["handle~"]?.emailAddress || null;
+
+    if (!email) {
+      throw new Error("Email not found in LinkedIn response.");
+    }
 
     console.log("User Info:", user);
     console.log("User Email:", email);
 
-    // Generate JWT token for your app
+    // Generate JWT token for authentication
     const appToken = jwt.sign(
       {
-        userId: user.id,
+        userId: user.sub, // OpenID returns 'sub' as user ID
         email,
-        firstName: user.localizedFirstName,
-        lastName: user.localizedLastName,
+        firstName: user.given_name,
+        lastName: user.family_name,
+        picture: user.picture,
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // Redirect user back to the mobile app using deep linking
+    // Redirect back to the mobile app using deep linking
     const deepLink = `venturloop://callback?token=${appToken}`;
     res.redirect(deepLink);
   } catch (error) {
@@ -143,7 +147,6 @@ app.get("/callback_linkedIn", async (req, res) => {
     res.status(500).json({ error: "Authentication failed", details: error.response?.data || error.message });
   }
 });
-
 
 // Start server
 const PORT = process.env.PORT || 5000;
