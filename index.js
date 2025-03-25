@@ -42,7 +42,6 @@ app.get("/callback", async (req, res) => {
         client_secret: process.env.GOOGLE_CLIENT_SECRET,
         redirect_uri: process.env.GOOGLE_REDIRECT_URI,
         grant_type: "authorization_code",
-        code_verifier: req.body.code_verifier, // ✅ Ensure code_verifier is sent
       }).toString(),
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
