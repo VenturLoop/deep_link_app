@@ -25,7 +25,7 @@ app.get("/.well-known/assetlinks.json", (req, res) => {
   res.sendFile(path.join(__dirname, "public", ".well-known", "assetlinks.json"));
 });
 
-app.post("/callback", async (req, res) => {
+app.get("/callback", async (req, res) => {
   console.log("console",req.query)
   const { code } = req.query;
   console.log("Received Code:", code);
