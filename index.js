@@ -75,6 +75,75 @@ app.get("/callback", async (req, res) => {
   }
 });
 
+app.get("/callback_linkedIn", async (req, res) => {
+  console.log("Console:", req.query);
+  const { code } = req.query;
+  console.log("Received Code:", code);
+
+  if (!code) {
+    return res.status(400).json({ error: "Authorization code is missing" });
+  }
+
+  try {
+    // Exchange authorization code for access token
+    const tokenResponse = await axios.post(
+      "https://www.linkedin.com/oauth/v2/accessToken",
+      new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        client_id: process.env.LINKEDIN_CLIENT_ID,
+        client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+        redirect_uri: process.env.LINKEDIN_REDIRECT_URI,
+      }).toString(),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
+
+    const { access_token } = tokenResponse.data;
+    console.log("Access Token:", access_token);
+
+    // Fetch user profile information from LinkedIn
+    const userProfileResponse = await axios.get("https://api.linkedin.com/v2/me", {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+
+    // Fetch user email from LinkedIn
+    const userEmailResponse = await axios.get(
+      "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))",
+      {
+        headers: { Authorization: `Bearer ${access_token}` },
+      }
+    );
+
+    const user = userProfileResponse.data;
+    const email = userEmailResponse.data.elements[0]["handle~"].emailAddress;
+
+    console.log("User Info:", user);
+    console.log("User Email:", email);
+
+    // Generate JWT token for your app
+    const appToken = jwt.sign(
+      {
+        userId: user.id,
+        email,
+        firstName: user.localizedFirstName,
+        lastName: user.localizedLastName,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // Redirect user back to the mobile app using deep linking
+    const deepLink = `venturloop://callback?token=${appToken}`;
+    res.redirect(deepLink);
+  } catch (error) {
+    console.error("OAuth Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Authentication failed", details: error.response?.data || error.message });
+  }
+});
+
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
