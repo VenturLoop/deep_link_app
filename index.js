@@ -66,7 +66,7 @@ app.get("/callback", async (req, res) => {
       { expiresIn: "7d" }
     );
     // Redirect user back to the mobile app using deep linking
-    const deepLink = `venturloop://callback/google?token=${encodeURIComponent(appToken)}`;
+    const deepLink = `venturloop://auth/signIn/createPass?token=${encodeURIComponent(appToken)}`;
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
