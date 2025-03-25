@@ -10,9 +10,11 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json()); // Parse JSON requests
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded requests
 
 // Serve static files from "public"
 app.use(express.static("public"));
+
 // Routes
 app.get("/", (req, res) => {
   res.send("🚀 Welcome to Venturloop Backend!");
@@ -20,9 +22,7 @@ app.get("/", (req, res) => {
 
 app.get("/.well-known/assetlinks.json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
-  res.sendFile(
-    path.join(__dirname, "public", ".well-known", "assetlinks.json")
-  );
+  res.sendFile(path.join(__dirname, "public", ".well-known", "assetlinks.json"));
 });
 
 app.get("/callback", async (req, res) => {
@@ -34,23 +34,28 @@ app.get("/callback", async (req, res) => {
   }
 
   try {
-    // Exchange the authorization code for access and ID tokens
-    const tokenResponse = await axios.post("https://oauth2.googleapis.com/token", {
-      code,
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: "https://app.venturloop.com/callback",
-      grant_type: "authorization_code",
-    });
+    const tokenResponse = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: "authorization_code",
+      }).toString(),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
 
     const { id_token, access_token } = tokenResponse.data;
 
     // Fetch user info from Google
-    const userInfo = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
+    const userInfoResponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
-    const user = userInfo.data;
+    const user = userInfoResponse.data;
 
     // Generate JWT token for your app
     const appToken = jwt.sign(
@@ -63,11 +68,10 @@ app.get("/callback", async (req, res) => {
     const deepLink = `venturloop://callback?token=${appToken}`;
     res.redirect(deepLink);
   } catch (error) {
-    console.error("OAuth Error:", error);
-    res.status(500).json({ error: "Authentication failed" });
+    console.error("OAuth Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Authentication failed", details: error.response?.data || error.message });
   }
 });
-
 
 // Start server
 const PORT = process.env.PORT || 5000;
