@@ -27,6 +27,7 @@ app.get("/.well-known/assetlinks.json", (req, res) => {
 
 app.get("/callback", async (req, res) => {
   const { code } = req.query;
+  console.log("Received Code:", code);
 
   if (!code) {
     return res.status(400).json({ error: "Authorization code is missing" });
