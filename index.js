@@ -67,8 +67,9 @@ app.get("/callback", async (req, res) => {
     );
 
     // Redirect user back to the mobile app using deep linking
-    const deepLink = `venturloop://(auth)/(signup)?token=${appToken}`;
+    const deepLink = `venturloop://callback/google?token=${encodeURIComponent(appToken)}`;
     res.redirect(deepLink);
+    
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Authentication failed", details: error.response?.data || error.message });
