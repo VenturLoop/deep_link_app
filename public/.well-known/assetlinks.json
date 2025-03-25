@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.venturloop.venturloop",
+      "sha256_cert_fingerprints": ["2B:57:74:45:B5:9F:AC:CE:9F:A0:24:27:CD:2E:67:26:0D:51:7B:43:0E:4D:2A:8B:E2:E6:11:AD:5F:E8:47:B3"]
+    }
+  }
+]
