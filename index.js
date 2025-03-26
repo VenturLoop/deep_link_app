@@ -62,6 +62,7 @@ app.get("/callback", async (req, res) => {
     );
 
     const user = userInfoResponse.data;
+    
     console.log("userIN", user);
 
     // Send `id_token` to your backend for processing
