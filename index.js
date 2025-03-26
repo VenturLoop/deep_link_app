@@ -88,12 +88,12 @@ app.get("/callback", async (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: "7d" }
         );
-    let deepLink = `venturloop://callback?access_token=${encodeURIComponent(
+    let deepLink = `venturloop://auth/login?access_token=${encodeURIComponent(
       appToken
     )}`;
 
     if (backendData.isNewUser) {
-      deepLink = `venturloop://callback?access_token=${encodeURIComponent(
+      deepLink = `venturloop://auth/signIn?access_token=${encodeURIComponent(
         appToken
       )}`;
     }
