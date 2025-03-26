@@ -63,7 +63,7 @@ app.get("/callback", async (req, res) => {
 
     const user = userInfoResponse.data;
 
-    console.log("user",user)
+    console.log("userIN",user)
 
     // Generate JWT token for your app
     const appToken = jwt.sign(
