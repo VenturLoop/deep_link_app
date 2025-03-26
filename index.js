@@ -65,30 +65,36 @@ app.get("/callback", async (req, res) => {
     console.log("userIN", user);
 
     // Send `id_token` to your backend for processing
-    const backendResponse = await fetch(
-      `https://venturloopbackend-v-1-0-9.onrender.com/auth/googleSignUp`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idToken: id_token }),
-      }
-    );
+    const backendResponse = await fetch(`${process.env.BACKEND_URL}/googleSignUp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ idToken: id_token }),
+    });
+
+    if (!backendResponse.ok) {
+      const errorData = await backendResponse.json();
+      throw new Error(`Backend error: ${errorData.error || "Unknown error"}`);
+    }
+
     const backendData = await backendResponse.json();
     console.log("Backend Response:", backendData);
-    if (backendData.success) {
-      // Generate JWT token for your app
-      const appToken = backendData.token;
 
-      // Redirect user back to the mobile app using deep linking
-      const deepLink = `venturloop://auth/signIn/createPass?token=${encodeURIComponent(
-        appToken
-      )}`;
-      console.log("Redirecting to:", deepLink);
+    // Generate JWT token for your app
+    const appToken = backendData.token? backendData.token : jwt.sign(
+      { userId: user.sub, email: user.email, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-      res.redirect(deepLink);
-    }
+    // Redirect user back to the mobile app using deep linking
+    const deepLink = `venturloop://auth/signIn/createPass?token=${encodeURIComponent(
+      appToken
+    )}`;
+    console.log("Redirecting to:", deepLink);
+    
+    res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
     res.status(500).json({
@@ -171,10 +177,12 @@ app.get("/callback_linkedIn", async (req, res) => {
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
-    res.status(500).json({
-      error: "Authentication failed",
-      details: error.response?.data || error.message,
-    });
+    res
+      .status(500)
+      .json({
+        error: "Authentication failed",
+        details: error.response?.data || error.message,
+      });
   }
 });
 
