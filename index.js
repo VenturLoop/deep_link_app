@@ -22,11 +22,13 @@ app.get("/", (req, res) => {
 
 app.get("/.well-known/assetlinks.json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
-  res.sendFile(path.join(__dirname, "public", ".well-known", "assetlinks.json"));
+  res.sendFile(
+    path.join(__dirname, "public", ".well-known", "assetlinks.json")
+  );
 });
 
 app.get("/callback", async (req, res) => {
-  console.log("console",req.query)
+  console.log("console", req.query);
   const { code } = req.query;
   console.log("Received Code:", code);
 
@@ -48,14 +50,16 @@ app.get("/callback", async (req, res) => {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       }
     );
-    
 
     const { id_token, access_token } = tokenResponse.data;
 
     // Fetch user info from Google
-    const userInfoResponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
+    const userInfoResponse = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: { Authorization: `Bearer ${access_token}` },
+      }
+    );
 
     const user = userInfoResponse.data;
 
@@ -65,12 +69,21 @@ app.get("/callback", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+
     // Redirect user back to the mobile app using deep linking
-    const deepLink = `venturloop://auth/signIn/createPass?token=${encodeURIComponent(appToken)}`;
+    const deepLink = `venturloop://auth/signIn/createPass?token=${encodeURIComponent(
+      appToken
+    )}`;
+    console.log(deepLink);
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
-    res.status(500).json({ error: "Authentication failed", details: error.response?.data || error.message });
+    res
+      .status(500)
+      .json({
+        error: "Authentication failed",
+        details: error.response?.data || error.message,
+      });
   }
 });
 
@@ -103,9 +116,12 @@ app.get("/callback_linkedIn", async (req, res) => {
     console.log("Access Token:", access_token);
 
     // Fetch user profile using OpenID Connect
-    const userProfileResponse = await axios.get("https://api.linkedin.com/v2/userinfo", {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
+    const userProfileResponse = await axios.get(
+      "https://api.linkedin.com/v2/userinfo",
+      {
+        headers: { Authorization: `Bearer ${access_token}` },
+      }
+    );
 
     // Fetch user email from LinkedIn
     const userEmailResponse = await axios.get(
@@ -116,7 +132,8 @@ app.get("/callback_linkedIn", async (req, res) => {
     );
 
     const user = userProfileResponse.data;
-    const email = userEmailResponse.data?.elements?.[0]?.["handle~"]?.emailAddress || null;
+    const email =
+      userEmailResponse.data?.elements?.[0]?.["handle~"]?.emailAddress || null;
 
     if (!email) {
       throw new Error("Email not found in LinkedIn response.");
@@ -143,7 +160,12 @@ app.get("/callback_linkedIn", async (req, res) => {
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
-    res.status(500).json({ error: "Authentication failed", details: error.response?.data || error.message });
+    res
+      .status(500)
+      .json({
+        error: "Authentication failed",
+        details: error.response?.data || error.message,
+      });
   }
 });
 
