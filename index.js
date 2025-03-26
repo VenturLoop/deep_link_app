@@ -28,9 +28,7 @@ app.get("/.well-known/assetlinks.json", (req, res) => {
 });
 
 app.get("/callback", async (req, res) => {
-  console.log("console", req.query);
   const { code } = req.query;
-  console.log("Received Code:", code);
 
   if (!code) {
     return res.status(400).json({ error: "Authorization code is missing" });
@@ -62,17 +60,18 @@ app.get("/callback", async (req, res) => {
     );
 
     const user = userInfoResponse.data;
-    
-    console.log("userIN", user);
 
     // Send `id_token` to your backend for processing
-    const backendResponse = await fetch(`https://venturloopbackend-v-1-0-9.onrender.com/auth/google-signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ idToken: id_token }),
-    });
+    const backendResponse = await fetch(
+      `https://venturloopbackend-v-1-0-9.onrender.com/auth/google-signup`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken: id_token }),
+      }
+    );
 
     if (!backendResponse.ok) {
       const errorData = await backendResponse.json();
@@ -82,19 +81,25 @@ app.get("/callback", async (req, res) => {
     const backendData = await backendResponse.json();
     console.log("Backend Response:", backendData);
 
-    // Generate JWT token for your app
-    const appToken = backendData.token? backendData.token : jwt.sign(
-      { userId: user.sub, email: user.email, name: user.name },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const appToken = backendData.token
+      ? backendData.token
+      : jwt.sign(
+          { userId: user.sub, email: user.email, name: user.name },
+          process.env.JWT_SECRET,
+          { expiresIn: "7d" }
+        );
 
-    // Redirect user back to the mobile app using deep linking
-    const deepLink = `venturloop://auth/signIn/createPass?token=${encodeURIComponent(
+    let deepLink = `venturloop://auth/login?token=${encodeURIComponent(
       appToken
     )}`;
+
+    if (backendData.isNewUser) {
+      deepLink = `venturloop://auth/signIn/index?token=${encodeURIComponent(
+        appToken
+      )}`;
+    }
+
     console.log("Redirecting to:", deepLink);
-    
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
@@ -178,12 +183,10 @@ app.get("/callback_linkedIn", async (req, res) => {
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
-    res
-      .status(500)
-      .json({
-        error: "Authentication failed",
-        details: error.response?.data || error.message,
-      });
+    res.status(500).json({
+      error: "Authentication failed",
+      details: error.response?.data || error.message,
+    });
   }
 });
 
