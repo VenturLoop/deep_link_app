@@ -65,7 +65,7 @@ app.get("/callback", async (req, res) => {
     console.log("userIN", user);
 
     // Send `id_token` to your backend for processing
-    const backendResponse = await fetch(`https://venturloopbackend-v-1-0-9.onrender.com/auth/googleSignUp`, {
+    const backendResponse = await fetch(`https://venturloopbackend-v-1-0-9.onrender.com/auth/google-signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
