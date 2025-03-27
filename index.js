@@ -132,8 +132,7 @@ app.get("/callback_linkedIn", async (req, res) => {
         code,
         client_id: process.env.LINKEDIN_CLIENT_ID,
         client_secret: process.env.LINKEDIN_CLIENT_SECRET,
-        redirect_uri: process.env.LINKEDIN_REDIRECT_URI,
-        grant_type: "authorization_code",
+        redirect_uri: process.env.LINKEDIN_REDIRECT_URI, // Must match exactly
       }).toString(),
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -141,18 +140,17 @@ app.get("/callback_linkedIn", async (req, res) => {
     );
 
     const { access_token } = tokenResponse.data;
-    console.log(tokenResponse.data)
     console.log("Access Token:", access_token);
 
-    // Fetch user profile using OpenID Connect
+    // Fetch user profile
     const userProfileResponse = await axios.get(
-      "https://api.linkedin.com/v2/userinfo",
+      "https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName,profilePicture(displayImage~:playableStreams))",
       {
         headers: { Authorization: `Bearer ${access_token}` },
       }
     );
 
-    // Fetch user email from LinkedIn
+    // Fetch user email
     const userEmailResponse = await axios.get(
       "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))",
       {
@@ -163,6 +161,9 @@ app.get("/callback_linkedIn", async (req, res) => {
     const user = userProfileResponse.data;
     const email =
       userEmailResponse.data?.elements?.[0]?.["handle~"]?.emailAddress || null;
+    const profilePic =
+      user.profilePicture?.["displayImage~"]?.elements?.[0]?.identifiers?.[0]
+        ?.identifier || null;
 
     if (!email) {
       throw new Error("Email not found in LinkedIn response.");
@@ -171,20 +172,20 @@ app.get("/callback_linkedIn", async (req, res) => {
     console.log("User Info:", user);
     console.log("User Email:", email);
 
-    // Generate JWT token for authentication
+    // Generate JWT token
     const appToken = jwt.sign(
       {
-        userId: user.sub, // OpenID returns 'sub' as user ID
+        userId: user.id,
         email,
-        firstName: user.given_name,
-        lastName: user.family_name,
-        picture: user.picture,
+        firstName: user.localizedFirstName,
+        lastName: user.localizedLastName,
+        picture: profilePic,
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // Redirect back to the mobile app using deep linking
+    // Redirect to mobile app with token
     const deepLink = `venturloop://callback?token=${appToken}`;
     res.redirect(deepLink);
   } catch (error) {
