@@ -81,19 +81,14 @@ app.get("/callback", async (req, res) => {
     const backendData = await backendResponse.json();
     console.log("Backend Response:", backendData);
 
-    const appToken = backendData.token
-      ? backendData.token
-      : jwt.sign(
-          { userId: user.sub, email: user.email, name: user.name },
-          process.env.JWT_SECRET,
-          { expiresIn: "7d" }
-        );
-    let deepLink = `venturloop://callback/auth/login?access_token=${encodeURIComponent(
+    const appToken = backendData.user._id;
+
+    let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appToken
     )}`;
 
     if (backendData.isNewUser) {
-      deepLink = `venturloop://callback/auth/signIn?access_token=${encodeURIComponent(
+      deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
         appToken
       )}`;
     }
