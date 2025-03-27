@@ -84,23 +84,23 @@ app.get("/callback", async (req, res) => {
     const appId = backendData.user._id;
 
     const appToken = jwt.sign(
-      { userId: backendData.user.userId, email: backendData.user.email, name: backendData.user.name },
+      {
+        userId: backendData.user.userId,
+        email: backendData.user.email,
+        name: backendData.user.name,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appId
-    )}&token=${encodeURIComponent(
-      appToken
-    )}`;
+    )}&token=${encodeURIComponent(appToken)}`;
 
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
         appId
-      )}&token=${encodeURIComponent(
-      appToken
-    )}`;
+      )}&token=${encodeURIComponent(appToken)}`;
     }
 
     console.log("Redirecting to:", deepLink);
