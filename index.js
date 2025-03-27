@@ -161,7 +161,6 @@ app.get("/callback_linkedIn", async (req, res) => {
 
     const appId = backendData.user._id;
 
-
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appId
     )}`;
@@ -172,7 +171,7 @@ app.get("/callback_linkedIn", async (req, res) => {
       )}`;
     }
 
-    console.log("Redirecting to:", deepLink);
+    console.log("Redirecting to:", deepLink); 
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
