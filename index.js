@@ -133,6 +133,7 @@ app.get("/callback_linkedIn", async (req, res) => {
         client_id: process.env.LINKEDIN_CLIENT_ID,
         client_secret: process.env.LINKEDIN_CLIENT_SECRET,
         redirect_uri: process.env.LINKEDIN_REDIRECT_URI,
+        grant_type: "authorization_code",
       }).toString(),
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -140,6 +141,7 @@ app.get("/callback_linkedIn", async (req, res) => {
     );
 
     const { access_token } = tokenResponse.data;
+    console.log(tokenResponse.data)
     console.log("Access Token:", access_token);
 
     // Fetch user profile using OpenID Connect
