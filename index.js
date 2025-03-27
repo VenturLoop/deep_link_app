@@ -59,8 +59,6 @@ app.get("/callback", async (req, res) => {
       }
     );
 
-    const user = userInfoResponse.data;
-
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
       `https://venturloopbackend-v-1-0-9.onrender.com/auth/google-signup`,
@@ -115,9 +113,7 @@ app.get("/callback", async (req, res) => {
 });
 
 app.get("/callback_linkedIn", async (req, res) => {
-  console.log("Console:", req.query);
   const { code } = req.query;
-  console.log("Received Code:", code);
 
   if (!code) {
     return res.status(400).json({ error: "Authorization code is missing" });
@@ -139,8 +135,7 @@ app.get("/callback_linkedIn", async (req, res) => {
       }
     );
 
-    const { id_token, access_token } = tokenResponse.data;
-    console.log("Access Token:", access_token);
+    const { id_token } = tokenResponse.data;
 
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
@@ -152,59 +147,43 @@ app.get("/callback_linkedIn", async (req, res) => {
         },
         body: JSON.stringify({
           id_token: id_token,
-          access_token: access_token,
         }),
       }
     );
 
     console.log("backendResponse", backendResponse);
 
-    // Fetch user profile
-    const userProfileResponse = await axios.get(
-      "https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName,profilePicture(displayImage~:playableStreams))",
-      {
-        headers: { Authorization: `Bearer ${access_token}` },
-      }
-    );
-
-    // Fetch user email
-    const userEmailResponse = await axios.get(
-      "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))",
-      {
-        headers: { Authorization: `Bearer ${access_token}` },
-      }
-    );
-
-    const user = userProfileResponse.data;
-    const email =
-      userEmailResponse.data?.elements?.[0]?.["handle~"]?.emailAddress || null;
-    const profilePic =
-      user.profilePicture?.["displayImage~"]?.elements?.[0]?.identifiers?.[0]
-        ?.identifier || null;
-
-    if (!email) {
-      throw new Error("Email not found in LinkedIn response.");
+    if (!backendResponse.ok) {
+      const errorData = await backendResponse.json();
+      throw new Error(`Backend error: ${errorData.error || "Unknown error"}`);
     }
 
-    console.log("User Info:", user);
-    console.log("User Email:", email);
+    const backendData = await backendResponse.json();
+    console.log("Backend Response:", backendData);
 
-    // Generate JWT token
+    const appId = backendData.user._id;
+
     const appToken = jwt.sign(
       {
-        userId: user.id,
-        email,
-        firstName: user.localizedFirstName,
-        lastName: user.localizedLastName,
-        picture: profilePic,
+        userId: backendData.user.userId,
+        email: backendData.user.email,
+        name: backendData.user.name,
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // Redirect to mobile app with token
-    const deepLink = `venturloop://callback?token=${appToken}`;
-    console.log(deepLink);
+    let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
+      appId
+    )}&token=${encodeURIComponent(appToken)}`;
+
+    if (backendData.isNewUser) {
+      deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
+        appId
+      )}&token=${encodeURIComponent(appToken)}`;
+    }
+
+    console.log("Redirecting to:", deepLink);
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
