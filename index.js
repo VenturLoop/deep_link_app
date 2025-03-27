@@ -85,12 +85,12 @@ app.get("/callback", async (req, res) => {
 
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appToken
-    )}`;
+    )}&isNewUser=${encodeURIComponent(backendData.isNewUser)}`;
 
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
         appToken
-      )}`;
+      )}&isNewUser=${encodeURIComponent(backendData.isNewUser)}`;
     }
 
     console.log("Redirecting to:", deepLink);
