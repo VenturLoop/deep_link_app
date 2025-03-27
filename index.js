@@ -139,8 +139,25 @@ app.get("/callback_linkedIn", async (req, res) => {
       }
     );
 
-    const { access_token } = tokenResponse.data;
+    const { id_token, access_token } = tokenResponse.data;
     console.log("Access Token:", access_token);
+
+    // Send `id_token` to your backend for processing
+    const backendResponse = await fetch(
+      `https://venturloopbackend-v-1-0-9.onrender.com/auth/linkedIn-signup`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_token: id_token,
+          access_token: access_token,
+        }),
+      }
+    );
+
+    console.log("backendResponse", backendResponse);
 
     // Fetch user profile
     const userProfileResponse = await axios.get(
@@ -187,6 +204,7 @@ app.get("/callback_linkedIn", async (req, res) => {
 
     // Redirect to mobile app with token
     const deepLink = `venturloop://callback?token=${appToken}`;
+    console.log(deepLink);
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
