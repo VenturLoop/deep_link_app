@@ -275,6 +275,8 @@ app.get("/profile/:username", async (req, res) => {
     const result = await backendResponse.json();
     const user = result.user;
 
+    console.log("user", user);
+
     if (!user) {
       return res.status(404).send("User not found");
     }
