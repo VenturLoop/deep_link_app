@@ -204,11 +204,10 @@ app.get("/profile/:username", async (req, res) => {
 
     const profileImage =
       user.profile?.profilePhoto ||
-      "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?t=st=1743190145~exp=1743193745~hmac=086d3875d17ff531c939f0866389dad07350e26e8fd97391a1176713ac9b0943&w=826";
-
+      "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=116,fit=crop,q=95/dOqyRBXrqRCpJKgN/whatsapp-image-2024-12-05-at-11.21.50-mp8qO4BzMyIP2DeR.jpeg" ||
+      "";
     const encodedUserId = encodeURIComponent(user.userId);
     const encodedUserName = encodeURIComponent(username);
-
 
     res.send(`
       <html>
@@ -232,7 +231,7 @@ app.get("/profile/:username", async (req, res) => {
           <script>
             function redirectToApp() {
               var appLink = "venturloop://callback/profile/${encodedUserId}";
-              var webLink = "https://app.venturloop.com/profile/${encodedUserName}";
+              var webLink = "https://venturloop.com/profile/${encodedUserName}";
 
               window.location.href = appLink;
 
@@ -306,7 +305,7 @@ app.get("/investor/:investorId", async (req, res) => {
           <script>
             function redirectToApp() {
               var appLink = "venturloop://callback/investor/${encodedInvestorId}";
-              var webLink = "https://app.venturloop.com/investor/${encodedInvestorId}";
+              var webLink = "https://venturloop.com/investor/${encodedInvestorId}";
 
               window.location.href = appLink;
 
@@ -358,7 +357,8 @@ app.get("/project/:projectId", async (req, res) => {
     // Assign project image or fallback to a default image
     const projectImage =
       project.projectPhoto ||
-      "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=116,fit=crop,q=95/dOqyRBXrqRCpJKgN/whatsapp-image-2024-12-05-at-11.21.50-mp8qO4BzMyIP2DeR.jpeg";
+      "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=116,fit=crop,q=95/dOqyRBXrqRCpJKgN/whatsapp-image-2024-12-05-at-11.21.50-mp8qO4BzMyIP2DeR.jpeg" ||
+      "";
 
     const encodedProjectId = encodeURIComponent(projectId);
 
@@ -389,7 +389,7 @@ app.get("/project/:projectId", async (req, res) => {
           <script>
             function redirectToApp() {
               var appLink = "venturloop://callback/project/${encodedProjectId}";
-              var webLink = "https://app.venturloop.com/project/${encodedProjectId}";
+              var webLink = "https://venturloop.com/project/${encodedProjectId}";
 
               window.location.href = appLink;
 
