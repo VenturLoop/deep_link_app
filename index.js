@@ -230,8 +230,8 @@ app.get("/profile/:username", async (req, res) => {
           <h1>Redirecting...</h1>
           <script>
             function redirectToApp() {
-              var appLink = "venturloop://callback/profile/${encodedUserId}";
-              var webLink = "https://venturloop.com/profile/${encodedUserName}";
+              var appLink = "venturloop://callback/profile?userId=${encodedUserId}";
+              var webLink = "https://venturloop.com/profile/${encodedUserId}";
 
               window.location.href = appLink;
 
@@ -304,7 +304,7 @@ app.get("/investor/:investorId", async (req, res) => {
           <h1>Redirecting...</h1>
           <script>
             function redirectToApp() {
-              var appLink = "venturloop://callback/investor/${encodedInvestorId}";
+              var appLink = "venturloop://callback/investor?investorId=${encodedInvestorId}";
               var webLink = "https://venturloop.com/investor/${encodedInvestorId}";
 
               window.location.href = appLink;
@@ -388,7 +388,7 @@ app.get("/project/:projectId", async (req, res) => {
           <h1>Redirecting...</h1>
           <script>
             function redirectToApp() {
-              var appLink = "venturloop://callback/project/${encodedProjectId}";
+              var appLink = "venturloop://callback/project?projectId=${encodedProjectId}";
               var webLink = "https://venturloop.com/project/${encodedProjectId}";
 
               window.location.href = appLink;
