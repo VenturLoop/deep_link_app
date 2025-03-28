@@ -256,14 +256,12 @@ app.get("/investor/:investorId", async (req, res) => {
   try {
     const { investorId } = req.params;
 
-    // Fetch user data from backend API
+    // Fetch investor data from backend API
     const backendResponse = await fetch(
       `https://venturloopbackend-v-1-0-9.onrender.com/api/share/investor-profile/${investorId}`,
       {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       }
     );
 
@@ -275,45 +273,42 @@ app.get("/investor/:investorId", async (req, res) => {
     }
 
     const result = await backendResponse.json();
+    const investor = result.investor;
 
-    console.log("Raw API Response:", responseText); // Debugging log
-
-    const user = result.user;
-
-    console.log("user", user);
-
-    if (!user) {
-      return res.status(404).send("User not found");
+    if (!investor) {
+      return res.status(404).send("Investor not found");
     }
 
     const profileImage =
-      user?.profile?.profileImage ||
-      "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?t=st=1743190145~exp=1743193745~hmac=086d3875d17ff531c939f0866389dad07350e26e8fd97391a1176713ac9b0943&w=826";
+      investor.investorImage ||
+      "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?w=826";
 
-    const userId = encodeURIComponent(user?.userId);
+    const encodedInvestorId = encodeURIComponent(investorId);
 
     res.send(`
       <html>
         <head>
-          <meta property="og:title" content="${user.name}'s Profile" />
-          <meta property="og:description" content="Check out ${user.name}'s profile on Venturloop." />
+          <title>${investor.name} - Investor Profile</title>
+          <meta property="og:title" content="${investor.name} - Investor at Venturloop" />
+          <meta property="og:description" content="${investor.bio}" />
           <meta property="og:image" content="${profileImage}" />
-          <meta property="og:url" content="https://app.venturloop.com/profile/${userId}" />
-          <meta name="twitter:card" content="summary_large_image">
-          <meta name="twitter:title" content="${user.name}'s Profile">
-          <meta name="twitter:image" content="${profileImage}">
+          <meta property="og:url" content="https://app.venturloop.com/investor/${encodedInvestorId}" />
+          <meta property="og:type" content="profile" />
+
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="${investor.name} - Investor Profile" />
+          <meta name="twitter:description" content="${investor.bio}" />
+          <meta name="twitter:image" content="${profileImage}" />
         </head>
         <body>
           <h1>Redirecting...</h1>
           <script>
             function redirectToApp() {
-              var appLink = "venturloop://callback/profile/${userId}";
-              var webLink = "https://app.venturloop.com/profile/${userId}";
+              var appLink = "venturloop://callback/investor/${encodedInvestorId}";
+              var webLink = "https://app.venturloop.com/investor/${encodedInvestorId}";
 
-              // Try to open the app
               window.location.href = appLink;
 
-              // If app is not installed, fallback to web version
               setTimeout(function() {
                 window.location.href = webLink;
               }, 2000);
@@ -325,7 +320,7 @@ app.get("/investor/:investorId", async (req, res) => {
       </html>
     `);
   } catch (error) {
-    console.log("Error fetching user profile:", error);
+    console.error("Error fetching investor profile:", error);
     res.status(500).send("Internal server error");
   }
 });
