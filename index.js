@@ -360,7 +360,6 @@ app.get("/project/:projectId", async (req, res) => {
     }
 
     const projectImage =
-      project?.projectPhoto ||
       "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=116,fit=crop,q=95/dOqyRBXrqRCpJKgN/whatsapp-image-2024-12-05-at-11.21.50-mp8qO4BzMyIP2DeR.jpeg" ||
       ""; // Default image if missing
 
@@ -369,15 +368,15 @@ app.get("/project/:projectId", async (req, res) => {
     res.send(`
       <html>
         <head>
-          <title>${project.name} - Project on Venturloop</title>
-          <meta property="og:title" content="${project.name} - A Startup on Venturloop" />
+          <title>${project.title} - Project on Venturloop</title>
+          <meta property="og:title" content="${project.title} - A Startup on Venturloop" />
           <meta property="og:description" content="${project.description}" />
           <meta property="og:image" content="${projectImage}" />
           <meta property="og:url" content="https://app.venturloop.com/project/${encodedProjectId}" />
           <meta property="og:type" content="website" />
           
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="${project.name} - Startup Profile" />
+          <meta name="twitter:title" content="${project.title} - Startup Profile" />
           <meta name="twitter:description" content="${project.description}" />
           <meta name="twitter:image" content="${projectImage}" />
 
