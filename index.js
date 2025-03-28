@@ -207,6 +207,8 @@ app.get("/profile/:username", async (req, res) => {
       "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?t=st=1743190145~exp=1743193745~hmac=086d3875d17ff531c939f0866389dad07350e26e8fd97391a1176713ac9b0943&w=826";
 
     const encodedUserId = encodeURIComponent(user.userId);
+    const encodedUserName = encodeURIComponent(username);
+
 
     res.send(`
       <html>
@@ -214,7 +216,7 @@ app.get("/profile/:username", async (req, res) => {
           <meta property="og:title" content="${user.name}'s Profile" />
           <meta property="og:description" content="Check out ${user.name}'s profile on Venturloop." />
           <meta property="og:image" content="${profileImage}" />
-          <meta property="og:url" content="https://app.venturloop.com/profile/${encodedUserId}" />
+          <meta property="og:url" content="https://app.venturloop.com/profile/${encodedUserName}" />
           <meta name="twitter:card" content="summary">
           <meta name="twitter:title" content="${user.name}'s Profile">
           <meta name="twitter:image" content="${profileImage}">
@@ -230,7 +232,7 @@ app.get("/profile/:username", async (req, res) => {
           <script>
             function redirectToApp() {
               var appLink = "venturloop://callback/profile/${encodedUserId}";
-              var webLink = "https://app.venturloop.com/profile/${encodedUserId}";
+              var webLink = "https://app.venturloop.com/profile/${encodedUserName}";
 
               window.location.href = appLink;
 
