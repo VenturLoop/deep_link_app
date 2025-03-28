@@ -178,7 +178,7 @@ app.get("/profile/:username", async (req, res) => {
 
     // Fetch user data from backend API
     const backendResponse = await fetch(
-      "https://digitalocean.venturloop.com/api/share/user-profile",
+      "https://venturloopbackend-v-1-0-9.onrender.com/api/share/user-profile",
       {
         method: "POST",
         headers: {
@@ -203,10 +203,10 @@ app.get("/profile/:username", async (req, res) => {
     }
 
     const profileImage =
-      user?.profile?.profileImage ||
+      user?.profile?.profilePhoto ||
       "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?t=st=1743190145~exp=1743193745~hmac=086d3875d17ff531c939f0866389dad07350e26e8fd97391a1176713ac9b0943&w=826";
 
-    const userId = encodeURIComponent(user?.userId);
+    const userId = encodeURIComponent(username);
 
     res.send(`
       <html>
@@ -246,22 +246,18 @@ app.get("/profile/:username", async (req, res) => {
   }
 });
 
-app.get("/profile/:username", async (req, res) => {
+app.get("/investor/:investorId", async (req, res) => {
   try {
-    const { username } = req.params;
-
-    // Convert username back to email
-    const email = `${username}@gmail.com`;
+    const { investorId } = req.params;
 
     // Fetch user data from backend API
     const backendResponse = await fetch(
-      "https://digitalocean.venturloop.com/api/share/user-profile",
+      `https://venturloopbackend-v-1-0-9.onrender.com/api/share/investor-profile/${investorId}`,
       {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
       }
     );
 
@@ -273,6 +269,9 @@ app.get("/profile/:username", async (req, res) => {
     }
 
     const result = await backendResponse.json();
+
+    console.log("Raw API Response:", responseText); // Debugging log
+
     const user = result.user;
 
     console.log("user", user);
@@ -331,13 +330,12 @@ app.get("/project/:projectId", async (req, res) => {
 
     // Fetch user data from backend API
     const backendResponse = await fetch(
-      "https://digitalocean.venturloop.com/api/share/user-profile",
+      `https://venturloopbackend-v-1-0-9.onrender.com/api/share/project/${projectId}`,
       {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
       }
     );
 
