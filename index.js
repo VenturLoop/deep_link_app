@@ -204,7 +204,7 @@ app.get("/profile/:username", async (req, res) => {
 
     const profileImage =
       user?.profile?.profilePhoto ||
-      "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?t=st=1743190145~exp=1743193745~hmac=086d3875d17ff531c939f0866389dad07350e26e8fd97391a1176713ac9b0943&w=826";
+      "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?t=st=1743190145~exp=1743193745~hmac=086d3875d17ff531c939f0866389dad07350e26e8fd97391a1176713ac9b0943&w=826" || "";
 
     const userId = encodeURIComponent(username);
 
@@ -281,7 +281,8 @@ app.get("/investor/:investorId", async (req, res) => {
 
     const profileImage =
       investor.investorImage ||
-      "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?w=826";
+      "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=116,fit=crop,q=95/dOqyRBXrqRCpJKgN/whatsapp-image-2024-12-05-at-11.21.50-mp8qO4BzMyIP2DeR.jpeg" ||
+      "";
 
     const encodedInvestorId = encodeURIComponent(investorId);
 
@@ -329,7 +330,7 @@ app.get("/project/:projectId", async (req, res) => {
   try {
     const { projectId } = req.params;
 
-    // Fetch user data from backend API
+    // Fetch project data from backend API
     const backendResponse = await fetch(
       `https://venturloopbackend-v-1-0-9.onrender.com/api/share/project/${projectId}`,
       {
@@ -354,9 +355,10 @@ app.get("/project/:projectId", async (req, res) => {
       return res.status(404).send("Project not found");
     }
 
+    // Assign project image or fallback to a default image
     const projectImage =
-      "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=116,fit=crop,q=95/dOqyRBXrqRCpJKgN/whatsapp-image-2024-12-05-at-11.21.50-mp8qO4BzMyIP2DeR.jpeg" ||
-      ""; // Default image if missing
+      project.projectPhoto ||
+      "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=116,fit=crop,q=95/dOqyRBXrqRCpJKgN/whatsapp-image-2024-12-05-at-11.21.50-mp8qO4BzMyIP2DeR.jpeg";
 
     const encodedProjectId = encodeURIComponent(projectId);
 
@@ -383,6 +385,7 @@ app.get("/project/:projectId", async (req, res) => {
           </style>
         </head>
         <body>
+          <h1>Redirecting...</h1>
           <script>
             function redirectToApp() {
               var appLink = "venturloop://callback/project/${encodedProjectId}";
@@ -405,6 +408,7 @@ app.get("/project/:projectId", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
