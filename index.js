@@ -215,9 +215,15 @@ app.get("/profile/:username", async (req, res) => {
           <meta property="og:description" content="Check out ${user.name}'s profile on Venturloop." />
           <meta property="og:image" content="${profileImage}" />
           <meta property="og:url" content="https://app.venturloop.com/profile/${userId}" />
-          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:card" content="summary">
           <meta name="twitter:title" content="${user.name}'s Profile">
           <meta name="twitter:image" content="${profileImage}">
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+            .profile-container { display: flex; align-items: center; justify-content: center; gap: 10px; }
+            img { width: 50px; height: 50px; border-radius: 50%; }
+            h1 { font-size: 20px; }
+          </style>
         </head>
         <body>
           <h1>Redirecting...</h1>
