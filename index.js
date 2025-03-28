@@ -353,40 +353,49 @@ app.get("/project/:projectId", async (req, res) => {
     }
 
     const result = await backendResponse.json();
-    const user = result.user;
+    const project = result.project;
 
-    if (!user) {
-      return res.status(404).send("User not found");
+    if (!project) {
+      return res.status(404).send("Project not found");
     }
 
-    const profileImage =
-      user?.profile?.profileImage ||
-      "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?t=st=1743190145~exp=1743193745~hmac=086d3875d17ff531c939f0866389dad07350e26e8fd97391a1176713ac9b0943&w=826";
+    const projectImage =
+      project?.projectPhoto ||
+      "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=116,fit=crop,q=95/dOqyRBXrqRCpJKgN/whatsapp-image-2024-12-05-at-11.21.50-mp8qO4BzMyIP2DeR.jpeg" ||
+      ""; // Default image if missing
 
-    const userId = encodeURIComponent(user?.userId);
+    const encodedProjectId = encodeURIComponent(projectId);
 
     res.send(`
       <html>
         <head>
-          <meta property="og:title" content="${user.name}'s Profile" />
-          <meta property="og:description" content="Check out ${user.name}'s profile on Venturloop." />
-          <meta property="og:image" content="${profileImage}" />
-          <meta property="og:url" content="https://app.venturloop.com/profile/${userId}" />
-          <meta name="twitter:card" content="summary_large_image">
-          <meta name="twitter:title" content="${user.name}'s Profile">
-          <meta name="twitter:image" content="${profileImage}">
+          <title>${project.name} - Project on Venturloop</title>
+          <meta property="og:title" content="${project.name} - A Startup on Venturloop" />
+          <meta property="og:description" content="${project.description}" />
+          <meta property="og:image" content="${projectImage}" />
+          <meta property="og:url" content="https://app.venturloop.com/project/${encodedProjectId}" />
+          <meta property="og:type" content="website" />
+          
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="${project.name} - Startup Profile" />
+          <meta name="twitter:description" content="${project.description}" />
+          <meta name="twitter:image" content="${projectImage}" />
+
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+            .project-container { display: flex; align-items: center; justify-content: center; gap: 10px; }
+            img { width: 50px; height: 50px; border-radius: 10px; }
+            h1 { font-size: 20px; }
+          </style>
         </head>
         <body>
-          <h1>Redirecting...</h1>
           <script>
             function redirectToApp() {
-              var appLink = "venturloop://callback/profile/${userId}";
-              var webLink = "https://app.venturloop.com/profile/${userId}";
+              var appLink = "venturloop://callback/project/${encodedProjectId}";
+              var webLink = "https://app.venturloop.com/project/${encodedProjectId}";
 
-              // Try to open the app
               window.location.href = appLink;
 
-              // If app is not installed, fallback to web version
               setTimeout(function() {
                 window.location.href = webLink;
               }, 2000);
@@ -398,7 +407,7 @@ app.get("/project/:projectId", async (req, res) => {
       </html>
     `);
   } catch (error) {
-    console.error("Error fetching user profile:", error);
+    console.error("Error fetching project:", error);
     res.status(500).send("Internal server error");
   }
 });
