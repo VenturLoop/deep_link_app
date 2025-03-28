@@ -77,19 +77,8 @@ app.get("/callback", async (req, res) => {
     }
 
     const backendData = await backendResponse.json();
-    console.log("Backend Response:", backendData);
 
     const appId = backendData.user._id;
-
-    const appToken = jwt.sign(
-      {
-        userId: backendData.user.userId,
-        email: backendData.user.email,
-        name: backendData.user.name,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
 
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appId
@@ -101,7 +90,6 @@ app.get("/callback", async (req, res) => {
       )}`;
     }
 
-    console.log("Redirecting to:", deepLink);
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
@@ -157,7 +145,6 @@ app.get("/callback_linkedIn", async (req, res) => {
     }
 
     const backendData = await backendResponse.json();
-    console.log("Backend Response:", backendData);
 
     const appId = backendData.user._id;
 
@@ -179,6 +166,83 @@ app.get("/callback_linkedIn", async (req, res) => {
       error: "Authentication failed",
       details: error.response?.data || error.message,
     });
+  }
+});
+
+app.get("/profile/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    // Convert username back to email
+    const email = `${username}@gmail.com`;
+
+    // Fetch user data from backend API
+    const backendResponse = await fetch(
+      "https://digitalocean.venturloop.com/api/share/user-profile",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      }
+    );
+
+    if (!backendResponse.ok) {
+      const errorData = await backendResponse.json();
+      return res
+        .status(500)
+        .send(`Backend error: ${errorData.error || "Unknown error"}`);
+    }
+
+    const result = await backendResponse.json();
+    const user = result.user;
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const profileImage =
+      user?.profile?.profileImage ||
+      "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg?t=st=1743190145~exp=1743193745~hmac=086d3875d17ff531c939f0866389dad07350e26e8fd97391a1176713ac9b0943&w=826";
+
+    const userId = encodeURIComponent(user?.userId);
+
+    res.send(`
+      <html>
+        <head>
+          <meta property="og:title" content="${user.name}'s Profile" />
+          <meta property="og:description" content="Check out ${user.name}'s profile on Venturloop." />
+          <meta property="og:image" content="${profileImage}" />
+          <meta property="og:url" content="https://app.venturloop.com/profile/${userId}" />
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:title" content="${user.name}'s Profile">
+          <meta name="twitter:image" content="${profileImage}">
+        </head>
+        <body>
+          <h1>Redirecting...</h1>
+          <script>
+            function redirectToApp() {
+              var appLink = "venturloop://callback/profile/${userId}";
+              var webLink = "https://app.venturloop.com/profile/${userId}";
+
+              // Try to open the app
+              window.location.href = appLink;
+
+              // If app is not installed, fallback to web version
+              setTimeout(function() {
+                window.location.href = webLink;
+              }, 2000);
+            }
+
+            redirectToApp();
+          </script>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).send("Internal server error");
   }
 });
 
