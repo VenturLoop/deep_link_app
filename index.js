@@ -61,7 +61,7 @@ app.get("/callback", async (req, res) => {
 
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
-      `https://digitalocean.venturloop.com/auth/google-signup`,
+      `https://venturloopbackend-v-1-0-9.onrender.com/auth/google-signup`,
       {
         method: "POST",
         headers: {
@@ -79,11 +79,21 @@ app.get("/callback", async (req, res) => {
     const backendData = await backendResponse.json();
 
     const appId = backendData.user._id;
-
+    // Login with google
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appId
     )}`;
 
+    // Allready account is created with different authType
+    if (backendData.user.authType && backendData.user.authType !== "google") {
+      deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
+        appId
+      )}&message=${encodeURIComponent(
+        `Account allready exists. Use your ${backendData.user.authType} login.`
+      )}`;
+    }
+
+    // New account created with authType google
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
         appId
@@ -127,7 +137,7 @@ app.get("/callback_linkedIn", async (req, res) => {
 
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
-      `https://digitalocean.venturloop.com/auth/linkedIn-signup`,
+      `https://venturloopbackend-v-1-0-9.onrender.com/auth/linkedIn-signup`,
       {
         method: "POST",
         headers: {
@@ -151,6 +161,15 @@ app.get("/callback_linkedIn", async (req, res) => {
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appId
     )}`;
+
+    // Allready account is created with different authType
+    if (backendData.user.authType && backendData.user.authType !== "linkedIn") {
+      deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
+        appId
+      )}&message=${encodeURIComponent(
+        `Account allready exists. Use your ${backendData.user.authType} login.`
+      )}`;
+    }
 
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
