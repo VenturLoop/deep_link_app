@@ -171,6 +171,7 @@ app.get("/callback_linkedIn", async (req, res) => {
       )}`;
     }
 
+    
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
         appId
