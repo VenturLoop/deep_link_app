@@ -85,7 +85,11 @@ app.get("/callback", async (req, res) => {
     )}`;
 
     // Allready account is created with different authType
-    if (backendData.user.authType && backendData.user.authType !== "google") {
+    if (
+      !backendData.isNewUser &&
+      backendData.user.authType &&
+      backendData.user.authType !== "google"
+    ) {
       deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
         appId
       )}&message=${encodeURIComponent(
@@ -163,7 +167,11 @@ app.get("/callback_linkedIn", async (req, res) => {
     )}`;
 
     // Allready account is created with different authType
-    if (backendData.user.authType && backendData.user.authType !== "linkedIn") {
+    if (
+      !backendData.isNewUser &&
+      backendData.user.authType &&
+      backendData.user.authType !== "linkedIn"
+    ) {
       deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
         appId
       )}&message=${encodeURIComponent(
@@ -171,7 +179,6 @@ app.get("/callback_linkedIn", async (req, res) => {
       )}`;
     }
 
-    
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
         appId
