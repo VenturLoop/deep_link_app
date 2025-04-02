@@ -27,8 +27,6 @@ app.get("/.well-known/assetlinks.json", (req, res) => {
   );
 });
 
-const axios = require("axios");
-
 app.get("/callback", async (req, res) => {
   const { code } = req.query;
 
@@ -37,8 +35,6 @@ app.get("/callback", async (req, res) => {
   }
 
   try {
-    console.log("Received auth code:", code); // Debugging
-
     const tokenResponse = await axios.post(
       "https://oauth2.googleapis.com/token",
       new URLSearchParams({
@@ -53,12 +49,6 @@ app.get("/callback", async (req, res) => {
       }
     );
 
-    console.log("Token response:", tokenResponse.data); // Debugging
-
-    if (!tokenResponse.data || !tokenResponse.data.id_token) {
-      throw new Error("Invalid token response from Google");
-    }
-
     const { id_token, access_token } = tokenResponse.data;
 
     // Fetch user info from Google
@@ -69,33 +59,32 @@ app.get("/callback", async (req, res) => {
       }
     );
 
-    console.log("User Info:", userInfoResponse.data); // Debugging
-
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
       `https://venturloopbackend-v-1-0-9.onrender.com/auth/google-signup`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ idToken: id_token }),
       }
     );
 
     if (!backendResponse.ok) {
       const errorData = await backendResponse.json();
-      console.error("Backend Error Response:", errorData);
       throw new Error(`Backend error: ${errorData.error || "Unknown error"}`);
     }
 
     const backendData = await backendResponse.json();
-    console.log("Backend Response:", backendData); // Debugging
 
     const appId = backendData.user._id;
-
+    // Login with google
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appId
     )}`;
 
+    // Allready account is created with different authType
     if (
       !backendData.isNewUser &&
       backendData.user.authType &&
@@ -104,10 +93,11 @@ app.get("/callback", async (req, res) => {
       deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
         appId
       )}&message=${encodeURIComponent(
-        `Account already exists. Use your ${backendData.user.authType} login.`
+        `Account allready exists. Use your ${backendData.user.authType} login.`
       )}`;
     }
 
+    // New account created with authType google
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
         appId
@@ -123,7 +113,6 @@ app.get("/callback", async (req, res) => {
     });
   }
 });
-
 
 app.get("/callback_linkedIn", async (req, res) => {
   const { code } = req.query;
