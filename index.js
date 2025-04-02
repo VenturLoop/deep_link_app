@@ -61,7 +61,7 @@ app.get("/callback", async (req, res) => {
 
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
-      `https://digitalocean.venturloop.com/auth/google-signup`,
+      `https://venturloopbackend-v-1-0-9.onrender.com/auth/google-signup`,
       {
         method: "POST",
         headers: {
@@ -86,7 +86,7 @@ app.get("/callback", async (req, res) => {
 
     if (
       backendData.isNewUser === false &&
-      backendData.user.authType === "google"
+      backendData.user.authType !== "google"
     ) {
       deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
         appId
@@ -100,7 +100,7 @@ app.get("/callback", async (req, res) => {
         appId
       )}`;
     }
-
+    console.log("deepLink",deepLink)
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
@@ -138,7 +138,7 @@ app.get("/callback_linkedIn", async (req, res) => {
 
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
-      `https://digitalocean.venturloop.com/auth/linkedIn-signup`,
+      `https://venturloopbackend-v-1-0-9.onrender.com/auth/linkedIn-signup`,
       {
         method: "POST",
         headers: {
