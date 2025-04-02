@@ -77,7 +77,7 @@ app.get("/callback", async (req, res) => {
     }
 
     const backendData = await backendResponse.json();
-
+console.log("backendData",backendData)
     const appId = backendData.user._id;
     // Login with google
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
