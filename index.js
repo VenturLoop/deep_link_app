@@ -100,7 +100,6 @@ app.get("/callback", async (req, res) => {
         appId
       )}`;
     }
-    console.log("deepLink", deepLink);
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
@@ -180,7 +179,6 @@ app.get("/callback_linkedIn", async (req, res) => {
       )}`;
     }
 
-    console.log("Redirecting to:", deepLink);
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
