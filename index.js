@@ -61,7 +61,7 @@ app.get("/callback", async (req, res) => {
 
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
-      `https://venturloopbackend-v-1-0-9.onrender.com/auth/google-signup`,
+      `https://digitalocean.venturloop.com/auth/google-signup`,
       {
         method: "POST",
         headers: {
@@ -71,21 +71,29 @@ app.get("/callback", async (req, res) => {
       }
     );
 
-    
     if (!backendResponse.ok) {
       const errorData = await backendResponse.json();
       throw new Error(`Backend error: ${errorData.error || "Unknown error"}`);
     }
-    
+
     const backendData = await backendResponse.json();
-    console.log("backendData",backendData)
 
     const appId = backendData.user._id;
 
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appId
     )}`;
-    
+
+    if (
+      backendData.isNewUser === false &&
+      backendData.user.authType === "google"
+    ) {
+      deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
+        appId
+      )}&message=${encodeURIComponent(
+        `Account allready exists. Use your ${backendData.user.authType} login.`
+      )}`;
+    }
 
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
@@ -130,7 +138,7 @@ app.get("/callback_linkedIn", async (req, res) => {
 
     // Send `id_token` to your backend for processing
     const backendResponse = await fetch(
-      `https://venturloopbackend-v-1-0-9.onrender.com/auth/linkedIn-signup`,
+      `https://digitalocean.venturloop.com/auth/linkedIn-signup`,
       {
         method: "POST",
         headers: {
@@ -411,7 +419,6 @@ app.get("/project/:projectId", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
-
 
 // Start server
 const PORT = process.env.PORT || 5000;
