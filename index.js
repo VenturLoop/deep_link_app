@@ -86,7 +86,7 @@ app.get("/callback", async (req, res) => {
 
     // Allready account is created with different authType
     if (
-      !backendData.isNewUser &&
+      backendData.isNewUser === false &&
       backendData.user.authType &&
       backendData.user.authType !== "google"
     ) {
