@@ -77,7 +77,6 @@ app.get("/callback", async (req, res) => {
     }
 
     const backendData = await backendResponse.json();
-console.log("backendData",backendData)
     const appId = backendData.user._id;
     // Login with google
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
@@ -110,6 +109,7 @@ console.log("backendData",backendData)
     res.status(500).json({
       error: "Authentication failed",
       details: error.response?.data || error.message,
+      main_Error : error
     });
   }
 });
