@@ -100,7 +100,7 @@ app.get("/callback", async (req, res) => {
         appId
       )}`;
     }
-    console.log("deepLink",deepLink)
+    console.log("deepLink", deepLink);
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
@@ -162,6 +162,17 @@ app.get("/callback_linkedIn", async (req, res) => {
     let deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
       appId
     )}`;
+
+    if (
+      backendData.isNewUser === false &&
+      backendData.user.authType !== "linkedIn"
+    ) {
+      deepLink = `venturloop://callback/auth/login?userId=${encodeURIComponent(
+        appId
+      )}&message=${encodeURIComponent(
+        `Account allready exists. Use your ${backendData.user.authType} login.`
+      )}`;
+    }
 
     if (backendData.isNewUser) {
       deepLink = `venturloop://callback/auth/signIn?userId=${encodeURIComponent(
