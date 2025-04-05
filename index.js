@@ -71,6 +71,8 @@ app.get("/callback", async (req, res) => {
       }
     );
 
+    console.log("Backend Response:", backendResponse);
+
     if (!backendResponse.ok) {
       const errorData = await backendResponse.json();
       throw new Error(`Backend error: ${errorData.error || "Unknown error"}`);
