@@ -140,6 +140,7 @@ app.get("/callback-web", async (req, res) => {
       {
         headers: { Authorization: `Bearer ${access_token}` },
       }
+      
     );
 
     // Send `id_token` to your backend for processing
