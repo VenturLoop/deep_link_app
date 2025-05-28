@@ -140,7 +140,6 @@ app.get("/callback-web", async (req, res) => {
       {
         headers: { Authorization: `Bearer ${access_token}` },
       }
-
     );
 
     // Send `id_token` to your backend for processing
@@ -164,7 +163,7 @@ app.get("/callback-web", async (req, res) => {
 
     const appId = backendData.user._id;
 
-    let deepLink = `https://web.venturloop.com/redirect/userId=${encodeURIComponent(
+    let deepLink = `https://web.venturloop.com/callback/web?token=${encodeURIComponent(
       appId
     )}`;
 
@@ -172,7 +171,7 @@ app.get("/callback-web", async (req, res) => {
       backendData.isNewUser === false &&
       backendData.user.authType !== "google"
     ) {
-      deepLink = `https://web.venturloop.com/redirect/userId=${encodeURIComponent(
+      deepLink = `https://web.venturloop.com/callback/web?token=${encodeURIComponent(
         appId
       )}&message=${encodeURIComponent(
         `Account allready exists. Use your ${backendData.user.authType} login.`
@@ -180,10 +179,11 @@ app.get("/callback-web", async (req, res) => {
     }
 
     if (backendData.isNewUser) {
-      deepLink = `https://web.venturloop.com/redirect/userId=${encodeURIComponent(
+      deepLink = `https://web.venturloop.com/callback/web?token=${encodeURIComponent(
         appId
       )}`;
     }
+    console.log("deepLink", deepLink);
     res.redirect(deepLink);
   } catch (error) {
     console.error("OAuth Error:", error.response?.data || error.message);
