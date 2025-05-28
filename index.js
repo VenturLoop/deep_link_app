@@ -167,6 +167,7 @@ app.get("/callback-web", async (req, res) => {
       appId
     )}`;
 
+    
     if (
       backendData.isNewUser === false &&
       backendData.user.authType !== "google"
