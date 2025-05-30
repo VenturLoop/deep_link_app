@@ -167,7 +167,6 @@ app.get("/callback-web", async (req, res) => {
       appId
     )}`;
 
-    
     if (
       backendData.isNewUser === false &&
       backendData.user.authType !== "google"
@@ -514,6 +513,63 @@ app.get("/project/:projectId", async (req, res) => {
   }
 });
 
+// ************************* PAYMENT ************************//
+
+app.get("/payment/phonepe/:merchantTransactionId", async (req, res) => {
+  const { merchantTransactionId } = req.params;
+
+  if (!merchantTransactionId) {
+    console.warn("⚠️ Missing merchantTransactionId in request");
+    return res.status(400).json({ error: "merchantTransactionId is missing" });
+  }
+
+  try {
+    const backendUrl = `https://venturloopbackend-v-1-0-9.onrender.com/payment/phonepe/status/${merchantTransactionId}`;
+
+    const backendResponse = await fetch(backendUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    let backendData;
+    try {
+      backendData = await backendResponse.json();
+    } catch (parseError) {
+      console.error("❌ Failed to parse backend response JSON:", parseError);
+      return res.redirect(`venturloop://payment-result?status=PENDING`);
+    }
+
+    if (!backendResponse.ok || !backendData?.success) {
+      console.warn(
+        "⚠️ Backend responded with error or failure status",
+        backendData
+      );
+      return res.redirect(`venturloop://payment-result?status=FAILED`);
+    }
+
+    const status = backendData?.data?.state?.toUpperCase() || "PENDING";
+
+    const validStatuses = [
+      "SUCCESS",
+      "FAILED",
+      "PENDING",
+      "COMPLETED",
+      "ACCEPTED",
+      "REFUND_FAILED",
+    ];
+    const resolvedStatus = validStatuses.includes(status) ? status : "PENDING";
+
+    const deepLink = `venturloop://payment-result?status=${resolvedStatus}`;
+
+    console.log(`✅ Redirecting to: ${deepLink}`);
+    res.redirect(deepLink);
+  } catch (error) {
+    console.error("❌ Redirect Error:", error.message || error);
+    res.redirect(`venturloop://payment-result?status=PENDING`);
+  }
+});
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
