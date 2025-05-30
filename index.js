@@ -524,7 +524,7 @@ app.get("/payment/phonepe/:merchantTransactionId", async (req, res) => {
   }
 
   try {
-    const backendUrl = `https://venturloopbackend-v-1-0-9.onrender.com/payment/phonepe/status/${merchantTransactionId}`;
+    const backendUrl = `https://venturloopbackend-v-1-0-9.onrender.com/payment/phonepe_status/${merchantTransactionId}`;
 
     const backendResponse = await fetch(backendUrl, {
       method: "GET",
